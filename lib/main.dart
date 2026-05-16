@@ -13,7 +13,10 @@ void main() async {
 
   // Get available cameras
   final cameras = await availableCameras();
-  final firstCamera = cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back, orElse: () => cameras.first);
+  final firstCamera = cameras.firstWhere(
+    (camera) => camera.lensDirection == CameraLensDirection.back,
+    orElse: () => cameras.first,
+  );
 
   runApp(ProfessionalVideoApp(camera: firstCamera, cameras: cameras));
 }
@@ -22,11 +25,19 @@ class ProfessionalVideoApp extends StatelessWidget {
   final CameraDescription camera;
   final List<CameraDescription> cameras;
 
-  const ProfessionalVideoApp({Key? key, required this.camera, required this.cameras}) : super(key: key);
+  const ProfessionalVideoApp({
+    Key? key,
+    required this.camera,
+    required this.cameras,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'Professional Video Filmer', theme: ThemeData.dark(), home: ProfessionalVideoRecorder(camera: camera, cameras: cameras));
+    return MaterialApp(
+      title: 'Professional Video Filmer',
+      theme: ThemeData.dark(),
+      home: ProfessionalVideoRecorder(camera: camera, cameras: cameras),
+    );
   }
 }
 
@@ -34,13 +45,19 @@ class ProfessionalVideoRecorder extends StatefulWidget {
   final CameraDescription camera;
   final List<CameraDescription> cameras;
 
-  const ProfessionalVideoRecorder({Key? key, required this.camera, required this.cameras}) : super(key: key);
+  const ProfessionalVideoRecorder({
+    Key? key,
+    required this.camera,
+    required this.cameras,
+  }) : super(key: key);
 
   @override
-  _ProfessionalVideoRecorderState createState() => _ProfessionalVideoRecorderState();
+  _ProfessionalVideoRecorderState createState() =>
+      _ProfessionalVideoRecorderState();
 }
 
-class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> with WidgetsBindingObserver {
+class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder>
+    with WidgetsBindingObserver {
   // Camera variables
   late CameraController _cameraController;
   late Future<void> _initializeControllerFuture;
@@ -98,7 +115,11 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
   }
 
   void _initializeCamera() {
-    _cameraController = CameraController(_currentCamera, _resolutionPreset, enableAudio: true);
+    _cameraController = CameraController(
+      _currentCamera,
+      _resolutionPreset,
+      enableAudio: true,
+    );
 
     _initializeControllerFuture = _cameraController.initialize().then((_) {
       if (!mounted) return;
@@ -121,7 +142,10 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
     try {
       await _initializeControllerFuture;
       final directory = await getApplicationDocumentsDirectory();
-      final path = join(directory.path, 'professional_video_${DateTime.now().millisecondsSinceEpoch}.mp4');
+      final path = join(
+        directory.path,
+        'professional_video_${DateTime.now().millisecondsSinceEpoch}.mp4',
+      );
 
       await _cameraController.startVideoRecording();
       setState(() {
@@ -144,7 +168,10 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
     try {
       await _cameraController.stopVideoRecording().then((xFile) async {
         final directory = await getApplicationDocumentsDirectory();
-        final path = join(directory.path, 'professional_video_${DateTime.now().millisecondsSinceEpoch}.mp4');
+        final path = join(
+          directory.path,
+          'professional_video_${DateTime.now().millisecondsSinceEpoch}.mp4',
+        );
         xFile.saveTo(path);
 
         setState(() {
@@ -162,7 +189,11 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
 
   Future<void> _loadVideoGallery() async {
     final directory = await getApplicationDocumentsDirectory();
-    final files = directory.listSync().where((file) => file.path.endsWith('.mp4')).map((file) => File(file.path)).toList();
+    final files = directory
+        .listSync()
+        .where((file) => file.path.endsWith('.mp4'))
+        .map((file) => File(file.path))
+        .toList();
 
     setState(() {
       _videoGallery = files.reversed.toList();
@@ -172,14 +203,23 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
   void _toggleCamera() {
     setState(() {
       _isFrontCamera = !_isFrontCamera;
-      _currentCamera = widget.cameras.firstWhere((camera) => camera.lensDirection == (_isFrontCamera ? CameraLensDirection.front : CameraLensDirection.back), orElse: () => widget.cameras.first);
+      _currentCamera = widget.cameras.firstWhere(
+        (camera) =>
+            camera.lensDirection ==
+            (_isFrontCamera
+                ? CameraLensDirection.front
+                : CameraLensDirection.back),
+        orElse: () => widget.cameras.first,
+      );
       _initializeCamera();
     });
   }
 
   void _toggleFlash() {
     setState(() {
-      _flashMode = _flashMode == FlashMode.off ? FlashMode.torch : FlashMode.off;
+      _flashMode = _flashMode == FlashMode.off
+          ? FlashMode.torch
+          : FlashMode.off;
       _cameraController.setFlashMode(_flashMode);
     });
   }
@@ -203,7 +243,9 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
     _scanSubscription = FlutterBluePlus.scanResults.listen((results) {
       setState(() {
         for (ScanResult result in results) {
-          if (!_bluetoothDevices.any((device) => device.id == result.device.id)) {
+          if (!_bluetoothDevices.any(
+            (device) => device.id == result.device.id,
+          )) {
             _bluetoothDevices.add(result.device);
           }
         }
@@ -236,7 +278,9 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
         _connectedDevices.add(device);
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Connected to ${device.name}')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Connected to ${device.name}')));
     } catch (e) {
       print("Error connecting to device: $e");
     }
@@ -249,7 +293,9 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
         _connectedDevices.remove(device);
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Disconnected from ${device.name}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Disconnected from ${device.name}')),
+      );
     } catch (e) {
       print("Error disconnecting from device: $e");
     }
@@ -277,7 +323,8 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
                   if (_isRecording) _buildRecordingTimer(),
 
                   // Connected devices indicator
-                  if (_connectedDevices.isNotEmpty) _buildConnectedDevicesIndicator(),
+                  if (_connectedDevices.isNotEmpty)
+                    _buildConnectedDevicesIndicator(),
                 ],
               );
             } else {
@@ -294,12 +341,25 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              IconButton(icon: Icon(Icons.settings), onPressed: () => setState(() => _showSettings = !_showSettings)),
+              IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: () => setState(() => _showSettings = !_showSettings),
+              ),
 
               // Resolution indicator
-              Text(_getResolutionLabel(), style: TextStyle(backgroundColor: Colors.black54, fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                _getResolutionLabel(),
+                style: TextStyle(
+                  backgroundColor: Colors.black54,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
 
-              IconButton(icon: Icon(Icons.bluetooth), onPressed: () => setState(() => _currentTabIndex = 1)),
+              IconButton(
+                icon: Icon(Icons.bluetooth),
+                onPressed: () => setState(() => _currentTabIndex = 1),
+              ),
             ],
           ),
         ),
@@ -320,8 +380,16 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
                 child: Container(
                   width: 70,
                   height: 70,
-                  decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.red, border: Border.all(color: Colors.white, width: 3)),
-                  child: Icon(_isRecording ? Icons.stop : Icons.fiber_manual_record, color: Colors.white, size: 40),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.red,
+                    border: Border.all(color: Colors.white, width: 3),
+                  ),
+                  child: Icon(
+                    _isRecording ? Icons.stop : Icons.fiber_manual_record,
+                    color: Colors.white,
+                    size: 40,
+                  ),
                 ),
               ),
 
@@ -331,11 +399,25 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  IconButton(icon: Icon(Icons.cameraswitch, color: Colors.white), onPressed: _toggleCamera),
+                  IconButton(
+                    icon: Icon(Icons.cameraswitch, color: Colors.white),
+                    onPressed: _toggleCamera,
+                  ),
 
-                  IconButton(icon: Icon(_flashMode == FlashMode.torch ? Icons.flash_on : Icons.flash_off, color: Colors.white), onPressed: _toggleFlash),
+                  IconButton(
+                    icon: Icon(
+                      _flashMode == FlashMode.torch
+                          ? Icons.flash_on
+                          : Icons.flash_off,
+                      color: Colors.white,
+                    ),
+                    onPressed: _toggleFlash,
+                  ),
 
-                  IconButton(icon: Icon(Icons.video_library, color: Colors.white), onPressed: () => setState(() => _currentTabIndex = 2)),
+                  IconButton(
+                    icon: Icon(Icons.video_library, color: Colors.white),
+                    onPressed: () => setState(() => _currentTabIndex = 2),
+                  ),
                 ],
               ),
             ],
@@ -351,14 +433,28 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
         title: Text('Bluetooth Devices'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => setState(() => _currentTabIndex = 0)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => setState(() => _currentTabIndex = 0),
+        ),
       ),
       body: Column(
         children: [
           // Scan button
           Container(
             padding: EdgeInsets.all(16),
-            child: Row(children: [Expanded(child: ElevatedButton(onPressed: _isScanning ? _stopBluetoothScan : _startBluetoothScan, child: Text(_isScanning ? 'Stop Scan' : 'Scan for Devices')))]),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _isScanning
+                        ? _stopBluetoothScan
+                        : _startBluetoothScan,
+                    child: Text(_isScanning ? 'Stop Scan' : 'Scan for Devices'),
+                  ),
+                ),
+              ],
+            ),
           ),
 
           // Status
@@ -366,9 +462,17 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
-                Icon(Icons.bluetooth, color: _isScanning ? Colors.blue : Colors.grey),
+                Icon(
+                  Icons.bluetooth,
+                  color: _isScanning ? Colors.blue : Colors.grey,
+                ),
                 SizedBox(width: 8),
-                Text(_isScanning ? 'Scanning...' : 'Not Scanning', style: TextStyle(color: _isScanning ? Colors.blue : Colors.grey)),
+                Text(
+                  _isScanning ? 'Scanning...' : 'Not Scanning',
+                  style: TextStyle(
+                    color: _isScanning ? Colors.blue : Colors.grey,
+                  ),
+                ),
                 Spacer(),
                 Text('Found: ${_bluetoothDevices.length} devices'),
               ],
@@ -379,7 +483,13 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
 
           // Connected devices
           if (_connectedDevices.isNotEmpty) ...[
-            Padding(padding: EdgeInsets.all(16), child: Text('Connected Devices', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
+            Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Connected Devices',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+              ),
+            ),
             Expanded(
               flex: 1,
               child: ListView.builder(
@@ -388,9 +498,14 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
                   final device = _connectedDevices[index];
                   return ListTile(
                     leading: Icon(Icons.bluetooth_connected),
-                    title: Text(device.name.isEmpty ? 'Unknown Device' : device.name),
+                    title: Text(
+                      device.name.isEmpty ? 'Unknown Device' : device.name,
+                    ),
                     subtitle: Text(device.id.toString()),
-                    trailing: IconButton(icon: Icon(Icons.link_off), onPressed: () => _disconnectDevice(device)),
+                    trailing: IconButton(
+                      icon: Icon(Icons.link_off),
+                      onPressed: () => _disconnectDevice(device),
+                    ),
                   );
                 },
               ),
@@ -398,26 +513,52 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
           ],
 
           // Available devices
-          Padding(padding: EdgeInsets.all(16), child: Text('Available Devices', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18))),
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Text(
+              'Available Devices',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+          ),
           Expanded(
             flex: 2,
-            child:
-                _bluetoothDevices.isEmpty
-                    ? Center(child: Text('No devices found. Start scanning to discover devices.', textAlign: TextAlign.center))
-                    : ListView.builder(
-                      itemCount: _bluetoothDevices.length,
-                      itemBuilder: (context, index) {
-                        final device = _bluetoothDevices[index];
-                        final isConnected = _connectedDevices.any((d) => d.id == device.id);
-
-                        return ListTile(
-                          leading: Icon(isConnected ? Icons.bluetooth_connected : Icons.bluetooth),
-                          title: Text(device.name.isEmpty ? 'Unknown Device' : device.name),
-                          subtitle: Text(device.id.toString()),
-                          trailing: isConnected ? Text('Connected', style: TextStyle(color: Colors.green)) : ElevatedButton(onPressed: () => _connectToDevice(device), child: Text('Connect')),
-                        );
-                      },
+            child: _bluetoothDevices.isEmpty
+                ? Center(
+                    child: Text(
+                      'No devices found. Start scanning to discover devices.',
+                      textAlign: TextAlign.center,
                     ),
+                  )
+                : ListView.builder(
+                    itemCount: _bluetoothDevices.length,
+                    itemBuilder: (context, index) {
+                      final device = _bluetoothDevices[index];
+                      final isConnected = _connectedDevices.any(
+                        (d) => d.id == device.id,
+                      );
+
+                      return ListTile(
+                        leading: Icon(
+                          isConnected
+                              ? Icons.bluetooth_connected
+                              : Icons.bluetooth,
+                        ),
+                        title: Text(
+                          device.name.isEmpty ? 'Unknown Device' : device.name,
+                        ),
+                        subtitle: Text(device.id.toString()),
+                        trailing: isConnected
+                            ? Text(
+                                'Connected',
+                                style: TextStyle(color: Colors.green),
+                              )
+                            : ElevatedButton(
+                                onPressed: () => _connectToDevice(device),
+                                child: Text('Connect'),
+                              ),
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -430,31 +571,59 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
         title: Text('Video Gallery'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => setState(() => _currentTabIndex = 0)),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => setState(() => _currentTabIndex = 0),
+        ),
       ),
-      body:
-          _videoGallery.isEmpty
-              ? Center(child: Text('No videos recorded yet.'))
-              : GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 4, mainAxisSpacing: 4),
-                itemCount: _videoGallery.length,
-                itemBuilder: (context, index) {
-                  final videoFile = _videoGallery[index];
-                  return GestureDetector(
-                    onTap: () {
-                      // Play video
-                      showDialog(context: context, builder: (context) => Dialog(child: VideoPlayerWidget(videoFile: videoFile)));
-                    },
-                    child: Stack(
-                      children: [
-                        // Thumbnail would be better here, but for simplicity using icon
-                        Container(color: Colors.black, child: Icon(Icons.videocam, size: 50, color: Colors.white)),
-                        Positioned(bottom: 4, right: 4, child: Text('${index + 1}', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                      ],
-                    ),
-                  );
-                },
+      body: _videoGallery.isEmpty
+          ? Center(child: Text('No videos recorded yet.'))
+          : GridView.builder(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
               ),
+              itemCount: _videoGallery.length,
+              itemBuilder: (context, index) {
+                final videoFile = _videoGallery[index];
+                return GestureDetector(
+                  onTap: () {
+                    // Play video
+                    showDialog(
+                      context: context,
+                      builder: (context) => Dialog(
+                        child: VideoPlayerWidget(videoFile: videoFile),
+                      ),
+                    );
+                  },
+                  child: Stack(
+                    children: [
+                      // Thumbnail would be better here, but for simplicity using icon
+                      Container(
+                        color: Colors.black,
+                        child: Icon(
+                          Icons.videocam,
+                          size: 50,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 4,
+                        right: 4,
+                        child: Text(
+                          '${index + 1}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
     );
   }
 
@@ -465,7 +634,20 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
         child: Column(
           children: List.generate(
             2,
-            (index) => Expanded(child: Row(children: List.generate(2, (index) => Expanded(child: Container(decoration: BoxDecoration(border: Border.all(color: Colors.white30))))))),
+            (index) => Expanded(
+              child: Row(
+                children: List.generate(
+                  2,
+                  (index) => Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white30),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -480,13 +662,19 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
       child: Container(
         width: 20,
         height: 100,
-        decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Container(
               height: 70, // This would change based on audio input
-              decoration: BoxDecoration(color: Colors.green, borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                color: Colors.green,
+                borderRadius: BorderRadius.circular(10),
+              ),
             ),
           ],
         ),
@@ -502,8 +690,14 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
       child: Center(
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(color: Colors.red, borderRadius: BorderRadius.circular(20)),
-          child: Text(_formatDuration(_recordingDuration), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            _formatDuration(_recordingDuration),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
         ),
       ),
     );
@@ -517,7 +711,10 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
         children: [
           Icon(Icons.bluetooth_connected, color: Colors.blue, size: 16),
           SizedBox(width: 4),
-          Text('${_connectedDevices.length} connected', style: TextStyle(color: Colors.blue, fontSize: 12)),
+          Text(
+            '${_connectedDevices.length} connected',
+            style: TextStyle(color: Colors.blue, fontSize: 12),
+          ),
         ],
       ),
     );
@@ -530,7 +727,10 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
       child: Container(
         width: 200,
         padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+          color: Colors.black54,
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -546,18 +746,47 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
                 }
               },
               items: [
-                DropdownMenuItem(value: ResolutionPreset.low, child: Text('Low (360p)')),
-                DropdownMenuItem(value: ResolutionPreset.medium, child: Text('Medium (720p)')),
-                DropdownMenuItem(value: ResolutionPreset.high, child: Text('High (1080p)')),
-                DropdownMenuItem(value: ResolutionPreset.veryHigh, child: Text('Very High (4K)')),
+                DropdownMenuItem(
+                  value: ResolutionPreset.low,
+                  child: Text('Low (360p)'),
+                ),
+                DropdownMenuItem(
+                  value: ResolutionPreset.medium,
+                  child: Text('Medium (720p)'),
+                ),
+                DropdownMenuItem(
+                  value: ResolutionPreset.high,
+                  child: Text('High (1080p)'),
+                ),
+                DropdownMenuItem(
+                  value: ResolutionPreset.veryHigh,
+                  child: Text('Very High (4K)'),
+                ),
               ],
             ),
 
             SizedBox(height: 10),
 
-            Row(children: [Text('Show Grid:'), Switch(value: _showGrid, onChanged: (value) => setState(() => _showGrid = value))]),
+            Row(
+              children: [
+                Text('Show Grid:'),
+                Switch(
+                  value: _showGrid,
+                  onChanged: (value) => setState(() => _showGrid = value),
+                ),
+              ],
+            ),
 
-            Row(children: [Text('Audio Levels:'), Switch(value: _showAudioLevels, onChanged: (value) => setState(() => _showAudioLevels = value))]),
+            Row(
+              children: [
+                Text('Audio Levels:'),
+                Switch(
+                  value: _showAudioLevels,
+                  onChanged: (value) =>
+                      setState(() => _showAudioLevels = value),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -588,14 +817,20 @@ class _ProfessionalVideoRecorderState extends State<ProfessionalVideoRecorder> w
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: IndexedStack(index: _currentTabIndex, children: [_buildCameraTab(), _buildBluetoothTab(), _buildGalleryTab()]));
+    return Scaffold(
+      body: IndexedStack(
+        index: _currentTabIndex,
+        children: [_buildCameraTab(), _buildBluetoothTab(), _buildGalleryTab()],
+      ),
+    );
   }
 }
 
 class VideoPlayerWidget extends StatefulWidget {
   final File videoFile;
 
-  const VideoPlayerWidget({Key? key, required this.videoFile}) : super(key: key);
+  const VideoPlayerWidget({Key? key, required this.videoFile})
+    : super(key: key);
 
   @override
   _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
@@ -624,7 +859,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        AspectRatio(aspectRatio: _controller.value.aspectRatio, child: VideoPlayer(_controller)),
+        AspectRatio(
+          aspectRatio: _controller.value.aspectRatio,
+          child: VideoPlayer(_controller),
+        ),
 
         Positioned.fill(
           child: Align(
@@ -633,7 +871,10 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 IconButton(
-                  icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow, color: Colors.white),
+                  icon: Icon(
+                    _isPlaying ? Icons.pause : Icons.play_arrow,
+                    color: Colors.white,
+                  ),
                   onPressed: () {
                     setState(() {
                       _isPlaying ? _controller.pause() : _controller.play();
